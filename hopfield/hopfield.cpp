@@ -63,7 +63,7 @@ int energy(int** W, int* s)
 // ƒmƒCƒY‚ð•t—^
 void noise(int* state)
 {
-	const int Noise = N * 0.1;
+	const int Noise = N * 0.4;
 
 	int i, j;
 	for(i = 0; i < Noise; i++)
@@ -105,11 +105,12 @@ int main()
 	weights(W, x, n);
 
 	int* s = new int[N];
-
+	
+	
 	// start configuration
-	//ifs.open("s1.txt");
-	//for(int i = 0; i < N; i++) { ifs >> s[i]; }
-	//ifs.close();
+	ifs.open("s1.txt");
+	for(int i = 0; i < N; i++) { ifs >> s[i]; }
+	ifs.close();
 
 	bool loop = true;
 	while(loop)
@@ -121,6 +122,8 @@ int main()
 		for(int i = 0; i < N; i++) { st[i] = x[xi][i]; }
 		noise(st);
 		for(int i = 0; i < N; i++) { s[i] = st[i]; }
+		//for(int i = 0; i < N; i++) { st[i] = s[i]; }
+
 
 		int E = energy(W, s);
 		cout << "energy of initial configuration: " << E << endl;
