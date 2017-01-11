@@ -1,12 +1,36 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <sstream>
 #include <random>
 
 using namespace std;
 
+const int w = 10; 
+const int h = 18;
+const int n = 7;
+const double rate = 0.2;
+
 // 画像の配列サイズ(5 x 8)
-const int N = 40;
+const int N = h * w;
+
+int inputIntFrom(int first, int last)
+{
+	while(true)
+	{
+		string tmp;
+		getline(cin, tmp); // 区切り文字を無効にするためにcinではなくgetlineを使用する
+
+		stringstream ss(tmp);
+		tmp.clear(); // 再利用するため
+
+		int time = first - 1;
+		ss >> time >> tmp;
+
+		if(time >= first && time <= last && tmp == "") { return time; }
+		else { cout << "正しい数値を入力してください．\n> "; }
+	}
+}
 
 // 重み行列Wをパターンで初期化
 void weights(int** W, int** x, int n)
@@ -63,8 +87,8 @@ int energy(int** W, int* s)
 // ノイズを付与
 void noise(int* state)
 {
-	const int Noise = N * 0.4;
-
+	const int Noise = N * rate;
+	
 	int i, j;
 	for(i = 0; i < Noise; i++)
 	{
@@ -80,7 +104,7 @@ void noise(int* state)
 int main()
 {
 	ifstream ifs;
-	const int n = 5;
+
 	int** x = new int*[n];
 	for(int i = 0; i < n; i++) { x[i] = new int[N]; }
 
@@ -89,7 +113,13 @@ int main()
 	{
 		in.insert(0, to_string(i));
 		ifs.open(in);
-		for(int j = 0; j < N; j++) { ifs >> x[i][j]; }
+		char c;
+		for(int j = 0; j < N; j++) 
+		{
+			ifs >> x[i][j] >> c;
+			if(x[i][j] == 255) { x[i][j] = 1; }
+			else { x[i][j] = -1; }
+		}
 		ifs.close();
 		in.erase(0, 1);
 	}
@@ -108,9 +138,9 @@ int main()
 	
 	
 	// start configuration
-	ifs.open("s1.txt");
-	for(int i = 0; i < N; i++) { ifs >> s[i]; }
-	ifs.close();
+	//ifs.open("s1.txt");
+	//for(int i = 0; i < N; i++) { ifs >> s[i]; }
+	//ifs.close();
 
 	bool loop = true;
 	while(loop)
@@ -151,47 +181,50 @@ int main()
 			result = check(s, s1);
 			count++;
 			cout << "count = " << count << endl;
-		} while((count < 100) && (result != 1));
+		} while((count < 1000) && (result != 1));
 
 		cout << "number of iterations: " << count << endl;
 
-		cout << "\n判定したいもの\n";
+		cout << "\n--------------------------- 入力 ---------------------------\n\n";
+		cout << "　　　　　　　　　　";
 		for(int i = 0; i < N; i++)
 		{
 			if(st[i] == 1) { cout << "■"; }
 			if(st[i] == -1) { cout << "　"; }
 		
-			if(((i + 1) % 5) == 0) { cout << endl; }
+			if(((i + 1) % w) == 0) { cout << endl; cout << "　　　　　　　　　　"; }
 		}
 
-		cout << "\n----- 判定結果 -----\n";
+		cout << "\n\n------------------------- 判定結果 -------------------------\n\n";
+		cout << "　　　　　　　　　　";
 		for(int i = 0; i < N; i++)
 		{
 			if(s[i] == 1) { cout << "■"; }
 			if(s[i] == -1) { cout << "　"; }
 			//cout << " "; // end configuration
-			if(((i + 1) % 5) == 0) { cout << endl; }
+			if(((i + 1) % w) == 0) { cout << endl; cout << "　　　　　　　　　　"; }
 		}
+		cout << "\n";
 
 		E = energy(W, s);
 		cout << "energy of end configuration: " << E << endl;
 
 		cout << "1 : 繰り返し，0 : 終了" << endl;
-		cin >> loop;
+		loop = static_cast<bool>(inputIntFrom(0, 1));
 
-		delete[] s1;
-		delete[] h;
+		//delete[] s1;
+		//delete[] h;
 
 	}
 
-	delete[] x[0];
-	delete[] x[1];
-	delete[] x[2];
-	delete[] x[3];
-	delete[] s;
+	//delete[] x[0];
+	//delete[] x[1];
+	//delete[] x[2];
+	//delete[] x[3];
+	//delete[] s;
 
-	for(int i = 0; i < N; i++) { delete[] W[i]; }
-	delete[] W;
+	//for(int i = 0; i < N; i++) { delete[] W[i]; }
+	//delete[] W;
 
 //	while(getchar() != 'q');
 	return 0;
